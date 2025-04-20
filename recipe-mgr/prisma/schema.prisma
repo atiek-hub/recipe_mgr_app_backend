@@ -1,0 +1,61 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  name        String
+  myRecipes   MyRecipe[]
+  recipeSites RecipeSite[]
+}
+
+model MyRecipe {
+  id           Int           @id @default(autoincrement())
+  recipeName   String
+  recipeImg    String
+  userId       String
+  ingredients  Ingredient[]
+  instructions Instruction[]
+  User         User          @relation(fields: [userId], references: [id])
+}
+
+model Ingredient {
+  id         Int      @id @default(autoincrement())
+  name       String
+  amount     String
+  myRecipeId Int
+  MyRecipe   MyRecipe @relation(fields: [myRecipeId], references: [id])
+}
+
+model Instruction {
+  id          Int      @id @default(autoincrement())
+  description String
+  myRecipeId  Int
+  MyRecipe    MyRecipe @relation(fields: [myRecipeId], references: [id])
+}
+
+model RecipeSite {
+  id                Int    @id @default(autoincrement())
+  recipeId          Int
+  recipeTitle       String
+  recipeUrl         String
+  foodImageUrl      String
+  mediumImageUrl    String
+  smallImageUrl     String
+  nickname          String
+  recipeDescription String
+  recipeMaterial    String
+  recipeIndication  String
+  reipeCost         String
+  recipePublishday  String
+  rank              String
+  userId            String
+  User              User   @relation(fields: [userId], references: [id])
+}
