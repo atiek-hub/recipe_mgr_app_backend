@@ -80,4 +80,26 @@ app.get("/category", async (c) => {
   }
 });
 
+app.get("/category_ranking/:categoryId",async(c) =>{
+  const id = c.req.param("categoryId");
+  const apiUrl = `${Bun.env.RAKUTEN_CATEGORYRANKING_API}&categoryId=${id}`
+  console.log(apiUrl)
+  if(!apiUrl){
+    return c.json({ error: "Failed to fetch category data." }, 502);
+  }
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      return c.json({ error: "Failed to fetch category data." }, 502);
+    }
+    const json = await response.json();
+    return c.json({ data:json });
+  } catch (e) {
+    return c.json(
+      { error: "An unexpected error occurred.", detail: `${e}` },
+      500
+    );
+  }
+})
+
 export default app;
