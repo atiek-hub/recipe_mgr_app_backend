@@ -13,15 +13,15 @@ const app = new Hono<{
 const prisma = new PrismaClient();
 
 app.post("/", async (c) => {
-  const { description, myRecipeId } = await c.req.parseBody();
+  const instructions = await c.req.json();
   try {
-    const data = await prisma.instruction.create({
-      data: {
-        description: String(description),
-        myRecipeId: Number(myRecipeId),
-      },
-    });
-    return c.json({ data: data });
+    if (Array.isArray(instructions) && instructions.length > 0) {
+      const data = await prisma.instruction.createMany({
+        data: instructions,
+        skipDuplicates: false,
+      });
+      return c.json({ data: data });
+    }
   } catch (e) {
     return c.json({ error: e });
   }

@@ -14,23 +14,27 @@ const prisma = new PrismaClient();
 
 app.post("/", async (c) => {
   try {
-    const { name, amount, myRecipeId } = await c.req.parseBody();
-    const data = await prisma.ingredient.create({
-      data: {
-        name: String(name),
-        amount: String(amount),
-        myRecipeId: Number(myRecipeId),
-      },
-    });
-    return c.json({ data: data });
+    const ingredients = await c.req.json();
+    if (Array.isArray(ingredients) && ingredients.length > 0) {
+      const data = await prisma.ingredient.createMany({
+        data: ingredients,
+        skipDuplicates: false,
+      });
+      return c.json({ data: data });
+    }
   } catch (e) {
     return c.json({ error: e });
   }
 });
 
-app.get("/", async (c) => {
+app.get("/:myRecipeId", async (c) => {
+  const myRecipeId = c.req.param("myRecipeId");
   try {
-    const data = await prisma.ingredient.findMany();
+    const data = await prisma.ingredient.findMany({
+      where: {
+        myRecipeId: Number(myRecipeId),
+      },
+    });
     return c.json({ data: data });
   } catch (e) {
     return c.json({ error: e });

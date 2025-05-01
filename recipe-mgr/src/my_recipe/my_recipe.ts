@@ -13,43 +13,43 @@ const app = new Hono<{
 const prisma = new PrismaClient();
 
 app.post("/", async (c) => {
-  const { recipeName, recipeImg, userId, ingredients, instructions } =
-    await c.req.json();
+  const { recipeName, recipeImg, userId } = await c.req.json();
   try {
-    const data = await prisma.myRecipe.create({
+    const recipe = await prisma.myRecipe.create({
       data: {
         recipeName: recipeName,
         recipeImg: recipeImg,
         userId: userId,
       },
     });
-    const formatIngredients = ingredients.map((ing: any) => {
-      return {
-        ...ing,
-        myRecipeId: data.id,
-      };
+    return c.json({ data: recipe });
+  } catch (e) {
+    return c.json({ error: "Server error occurred.", detail: e }, 500);
+  }
+});
+
+app.get("/:userId", async (c) => {
+  const id = c.req.param("userId");
+  try {
+    const data = await prisma.myRecipe.findMany({
+      where: {
+        userId: id,
+      },
     });
-    const formatInstructions = instructions.map((inst: any) => {
-      return {
-        ...inst,
-        myRecipeId: data.id,
-      };
-    });
-    await prisma.ingredient.createMany({
-      data: formatIngredients,
-    });
-    await prisma.instruction.createMany({
-      data: formatInstructions,
-    });
-    return c.text("Success!");
+    return c.json({ data: data });
   } catch (e) {
     return c.json({ error: e });
   }
 });
 
-app.get("/", async (c) => {
+app.get("/unique/:recipeId", async (c) => {
+  const id = c.req.param("recipeId");
   try {
-    const data = await prisma.myRecipe.findMany();
+    const data = await prisma.myRecipe.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
     return c.json({ data: data });
   } catch (e) {
     return c.json({ error: e });

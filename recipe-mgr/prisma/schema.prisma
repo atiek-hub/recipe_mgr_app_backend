@@ -53,7 +53,7 @@ model RecipeSite {
   recipeDescription String
   recipeMaterial    String
   recipeIndication  String
-  reipeCost         String
+  recipeCost        String
   recipePublishday  String
   rank              String
   userId            String

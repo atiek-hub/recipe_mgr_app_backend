@@ -10,7 +10,8 @@ const app = new Hono();
 app.use(
   "/*",
   cors({
-    origin: ["http://localhost:5173"],
+    origin: "http://localhost:5173",
+    // allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
   })
 );
 app.get("/", (c) => {
@@ -19,8 +20,8 @@ app.get("/", (c) => {
 
 app.route("/user", users);
 app.route("/my_recipe", my_recipes);
-app.route("/ingredient", ingredients);
-app.route("/instruction", instructions);
+app.route("/ingredients", ingredients);
+app.route("/instructions", instructions);
 app.route("/recipe_site", recipe_site);
 
 export default app;
