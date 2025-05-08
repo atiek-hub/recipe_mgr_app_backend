@@ -55,8 +55,8 @@ app.delete("/:id", async (c) => {
   }
 });
 
-app.patch("/", async (c) => {
-  const { ingredients } = await c.req.json();
+app.put("/", async (c) => {
+  const ingredients = await c.req.json();
   try {
     const updatePromises = ingredients.map(async (ingredient: any) => {
       return await prisma.ingredient.update({

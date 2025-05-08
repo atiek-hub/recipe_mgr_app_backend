@@ -55,8 +55,8 @@ app.delete("/:id", async (c) => {
   }
 });
 
-app.patch("/", async (c) => {
-  const { instructions } = await c.req.json();
+app.put("/", async (c) => {
+  const instructions = await c.req.json();
   try {
     const updatePromises = instructions.map(async (instruction: any) => {
       return await prisma.instruction.update({

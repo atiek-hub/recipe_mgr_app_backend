@@ -28,9 +28,14 @@ app.post("/", async (c) => {
   }
 });
 
-app.get("/", async (c) => {
+app.get("/:userId", async (c) => {
+  const id = c.req.param("userId");
   try {
-    const data = await prisma.user.findMany();
+    const data = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
     return c.json({ data: data });
   } catch (e) {
     return c.json({ error: e });

@@ -36,7 +36,29 @@ app.get("/:userId", async (c) => {
         userId: id,
       },
     });
-    return c.json({ data: data });
+    const enrichedRecipes = await Promise.all(
+      data.map(async (recipe) => {
+        const recipeId = Number(recipe.id);
+        const [ingredients, instructions] = await Promise.all([
+          prisma.ingredient.findMany({
+            where: {
+              myRecipeId: recipeId,
+            },
+          }),
+          prisma.instruction.findMany({
+            where: {
+              myRecipeId: recipeId,
+            },
+          }),
+        ]);
+        return {
+          ...recipe,
+          ingredients,
+          instructions,
+        };
+      })
+    );
+    return c.json({ data: enrichedRecipes });
   } catch (e) {
     return c.json({ error: e });
   }
@@ -56,10 +78,9 @@ app.get("/unique/:recipeId", async (c) => {
   }
 });
 
-app.patch("/:myRecipeId", async (c) => {
+app.put("/:myRecipeId", async (c) => {
   const id = c.req.param("myRecipeId");
-  const { recipeName, recipeImg, ingredients, instructions } =
-    await c.req.json();
+  const { recipeName, recipeImg } = await c.req.json();
   try {
     const updatedMyRecipe = await prisma.myRecipe.update({
       where: {
@@ -70,30 +91,7 @@ app.patch("/:myRecipeId", async (c) => {
         recipeImg: recipeImg,
       },
     });
-
-    const updateIngredientsPromis = ingredients.map(async (ingredient: any) => {
-      return await prisma.ingredient.update({
-        where: { id: ingredient.id }, // 各オブジェクトのIDを指定
-        data: { ...ingredient }, // 更新するデータ
-      });
-    });
-    const updatedIngredients = await Promise.all(updateIngredientsPromis);
-
-    const updateInstructionsPromis = instructions.map(
-      async (instruction: any) => {
-        return await prisma.instruction.update({
-          where: { id: instruction.id }, // 各オブジェクトのIDを指定
-          data: { ...instruction }, // 更新するデータ
-        });
-      }
-    );
-    const updatedInstructions = await Promise.all(updateInstructionsPromis);
-
-    return c.json({
-      myRecipe: updatedMyRecipe,
-      ingredients: updatedIngredients,
-      instructions: updatedInstructions,
-    });
+    return c.json({ data: updatedMyRecipe });
   } catch (e) {
     return c.json({ error: e });
   }
