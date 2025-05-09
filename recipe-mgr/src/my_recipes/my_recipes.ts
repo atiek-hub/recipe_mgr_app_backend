@@ -53,8 +53,8 @@ app.get("/:userId", async (c) => {
         ]);
         return {
           ...recipe,
-          ingredients,
-          instructions,
+          ingredients: ingredients ?? [],
+          instructions: instructions ?? [],
         };
       })
     );

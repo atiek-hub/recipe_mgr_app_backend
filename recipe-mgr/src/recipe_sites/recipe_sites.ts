@@ -11,7 +11,7 @@ const app = new Hono<{
   };
 }>();
 const prisma = new PrismaClient();
-app.get("/registered_recipe/:userId", async (c) => {
+app.get("/registered_recipes/:userId", async (c) => {
   const id = c.req.param("userId");
   try {
     const res = await prisma.recipeSite.findMany({
@@ -24,7 +24,7 @@ app.get("/registered_recipe/:userId", async (c) => {
     return c.json({ error: e });
   }
 });
-app.delete("/registered_recipe/:recipeId", async (c) => {
+app.delete("/registered_recipes/:recipeId", async (c) => {
   const id = c.req.param("recipeId");
   try {
     const res = await prisma.recipeSite.delete({
@@ -93,7 +93,7 @@ app.get("/", async (c) => {
   }
 });
 
-app.get("/category", async (c) => {
+app.get("/categories", async (c) => {
   const apiUrl = Bun.env.RAKUTEN_API;
   if (!apiUrl) {
     return c.json({ error: "Failed to fetch category data." }, 502);
@@ -125,7 +125,7 @@ app.get("/category", async (c) => {
   }
 });
 
-app.get("/category_ranking/:categoryId", async (c) => {
+app.get("/category_rankings/:categoryId", async (c) => {
   const id = c.req.param("categoryId");
   const apiUrl = `${Bun.env.RAKUTEN_CATEGORYRANKING_API}&categoryId=${id}`;
   if (!apiUrl) {
